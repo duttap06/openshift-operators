@@ -1,4 +1,4 @@
-# Deploy RHACM, GitOps to OCP using Ansible
+# Deploy RHACM, GitOps to OCP using Ansible Automation Platform
 
 ## Prerequisites
 
