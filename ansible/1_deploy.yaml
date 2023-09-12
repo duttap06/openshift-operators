@@ -10,8 +10,8 @@
     
     ## Operator Management
 
-    deploy_rhacm: true
-    deploy_rh_gitops: true
+    deploy_rhacm: false
+    deploy_rh_gitops: false
 
     deploy_to_infra_nodes: true
 
