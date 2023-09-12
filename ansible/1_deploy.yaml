@@ -1,5 +1,5 @@
 ---
-- name: Setup operators and services needed on a Hub OpenShift Cluster for ZTP
+- name: Setup operators and services on a Hub OpenShift Cluster for RHACM, GitOps (ArgoCD)
   hosts: localhost
   connection: local
   gather_facts: false
@@ -7,133 +7,25 @@
   vars:
     output_lines: []
     #########################################
-    ## Secrets Management
-    deploy_reflector: false
-    deploy_sealed_secrets: false # not supported yet
-    deploy_hashicorp_vault: false # not supported yet
-
-    #########################################
+    
     ## Operator Management
-    deploy_rh_cert_manager: false
-    deploy_openshift_logging: false
-    deploy_nfd: false
-    deploy_lso: false
-    deploy_odf: false
-    deploy_http_mirror: false
-    deploy_rhacm: false
-    deploy_gitea: false
-    deploy_rh_gitops: false
-    deploy_aap2_controller: false
-    deploy_rh_sso: false
-    deploy_openshift_pipelines: false
-    deploy_shipwright: false
 
-    #########################################
-    ## Local Storage Operator Variables
-    ## lso_hostname_targets: is a list of hostnames to be used by the lso-operator for a LocalVolumeSet
-    lso_hostname_targets:
-      - app-1
-      - app-2
-      - app-3
+    deploy_rhacm: true
+    deploy_rh_gitops: true
 
-    deploy_to_infra_nodes: false
+    deploy_to_infra_nodes: true
 
   tasks:
-    - name: Check for Helm
-      when: deploy_reflector | bool or deploy_sealed_secrets | bool or deploy_hashicorp_vault | bool
-      ansible.builtin.include_role:
-        name: setup_helm
-
-    - name: Install Reflector for Secret management
-      when: deploy_reflector | bool
-      ansible.builtin.include_role:
-        name: deploy_reflector_chart
-
-    - name: Install Bitnami SealedSecrets for Secret management
-      when: deploy_sealed_secrets | bool
-      ansible.builtin.include_role:
-        name: deploy_sealedsecrets_chart
-
-    - name: Install Hashicorp Vault for Secret management
-      when: deploy_hashicorp_vault | bool
-      ansible.builtin.include_role:
-        name: deploy_vault_chart
-
-    - name: Install the Red Hat cert-manager Operator
-      when: deploy_rh_cert_manager | bool
-      ansible.builtin.include_role:
-        name: deploy_cert_manager
-
-    - name: Install Node Feature Discovery
-      when: deploy_nfd | bool
-      ansible.builtin.include_role:
-        name: deploy_nfd_operator
-
-    - name: Install Local Storage Operator
-      when: deploy_lso | bool
-      block:
-        - name: Get the cluster infrastructure information
-          kubernetes.core.k8s_info:
-            api_version: config.openshift.io/v1
-            kind: Infrastructure
-            name: cluster
-          register: r_ocp_infra
-
-        - name: Start the role if not on AWS
-          when: r_ocp_infra.resources[0].status.platform != "AWS"
-          ansible.builtin.include_role:
-            name: deploy_lso_operator
-
-    ## TODO: Add logic for ODF to create a StorageSystem from EBS on AWS
-    - name: Install OpenShift Data Foundation
-      when: deploy_odf | bool
-      ansible.builtin.include_role:
-        name: deploy_odf_operator
-
-    - name: Install the Red Hat OpenShift Logging Operator
-      when: deploy_openshift_logging | bool
-      ansible.builtin.include_role:
-        name: deploy_openshift_logging
-
-    - name: Deploy the ZTP HTTP Mirror
-      when: deploy_http_mirror | bool
-      ansible.builtin.include_role:
-        name: deploy_http_mirror
 
     - name: Install Red Hat Advanced Cluster Management
       when: deploy_rhacm | bool
       ansible.builtin.include_role:
         name: deploy_rhacm_operator
 
-    - name: Install the Gitea Operator
-      when: deploy_gitea | bool
-      ansible.builtin.include_role:
-        name: deploy_gitea_operator
-
     - name: Install Red Hat GitOps Operator
       when: deploy_rh_gitops | bool
       ansible.builtin.include_role:
         name: deploy_rh_gitops_operator
-
-    - name: Install the Red Hat Ansible Automation Platform Controller
-      when: deploy_aap2_controller | bool
-      ansible.builtin.include_role:
-        name: deploy_aap2_controller
-
-    - name: Install the Red Hat Single Sign On Operator
-      when: deploy_rh_sso | bool
-      ansible.builtin.include_role:
-        name: deploy_rh_sso
-
-    - name: Install the Red Hat OpenShift Pipelines Operator
-      when: deploy_openshift_pipelines | bool
-      ansible.builtin.include_role:
-        name: deploy_openshift_pipelines
-
-    - name: Install the Project Shipwright Operator
-      when: deploy_shipwright | bool
-      ansible.builtin.include_role:
-        name: deploy_shipwright_operator
 
     - name: Print the Playbook output
       when: output_lines | length > 0

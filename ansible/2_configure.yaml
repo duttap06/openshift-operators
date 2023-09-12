@@ -1,5 +1,5 @@
 ---
-- name: Configure a Hub OpenShift Cluster for ZTP
+- name: Configure a Hub OpenShift Cluster for RHACM, GitOps (ArgoC)
   hosts: localhost
   connection: local
   gather_facts: false
@@ -16,19 +16,8 @@
     #########################################
     output_lines: []
 
-    # May still need some manual steps for RHACM OAS if on bare-metal
-    ## https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.5/html-single/clusters/managing-your-clusters#enable-cim
-
-    configure_rhacm: false
-    configure_aap2_controller: false
-    configure_rh_gitops: false
-
-    use_ztp_mirror: true
-    use_services_not_routes: true
-
-    ## Path to the OpenShift Pull Secret
-    pull_secret_path: ~/rh-ocp-pull-secret.json
-    pull_secret: "{{ lookup('file', pull_secret_path) }}"
+    configure_rhacm: true
+    configure_rh_gitops: true
 
     # git_credential_type: ssh | basic
     scm_credential_type: basic
@@ -39,17 +28,12 @@
     scm_repo_name: openshift-ztp
 
   tasks:
-    - name: Configure RHACM for ZTP feature gated functions
+    - name: Configure RHACM
       when: configure_rhacm | bool
       ansible.builtin.include_role:
         name: configure_rhacm_oas
 
-    - name: Configure Ansible Automation Platform 2 Controller for ZTP stuff
-      when: configure_aap2_controller | bool
-      ansible.builtin.include_role:
-        name: configure_aap2_controller
-
-    - name: Configure ArgoCD/Red Hat GitOps for syncing ZTP Spoke Clusters
+    - name: Configure ArgoCD/Red Hat GitOps for syncing Spoke Clusters
       when: configure_rh_gitops | bool
       ansible.builtin.include_role:
         name: configure_argocd

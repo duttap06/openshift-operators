@@ -1,3 +1,0 @@
----
-# defaults file for deploy_shipwright_operator
-shipwright_operator_namespace: openshift-operators

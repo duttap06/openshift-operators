@@ -1,3 +1,0 @@
----
-# defaults file for deploy_cert_manager
-rh_cert_manager_operator_namespace: openshift-cert-manager-operator

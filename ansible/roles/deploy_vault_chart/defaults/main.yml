@@ -1,3 +1,0 @@
----
-# defaults file for deploy_vault_chart
-vault_namespace: hashicorp-vault
